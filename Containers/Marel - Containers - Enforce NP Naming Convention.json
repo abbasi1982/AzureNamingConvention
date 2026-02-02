@@ -1,0 +1,140 @@
+{
+    "properties": {
+        "policyType": "Custom",
+        "displayName": "Marel - Enforce NP naming convention",
+        "description": "AKS user node pool naming convention",
+        "mode": "All",
+        "Category": "Naming Convention",
+        "metadata": {
+            "category": "Naming Convention",
+            "version": "1.0.0"
+        },
+        "parameters": {
+            "policyEffect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Policy Effect",
+                    "description": "The desired effect of the policy."
+                },
+                "allowedValues": [
+                    "audit",
+                    "Audit",
+                    "deny",
+                    "Deny",
+                    "disabled",
+                    "Disabled"
+                ],
+                "defaultValue": "Audit"
+            },
+            "environment": {
+                "type": "array",
+                "defaultValue": [
+                    "prd",
+                    "stg",
+                    "tst",
+                    "dev"
+                ]
+            },
+            "location": {
+                "type": "array",
+                "defaultValue": [
+                    "euw",
+                    "brs",
+                    "aue",
+                    "usc",
+                    "jae",
+                    "inc",
+                    "inw",
+                    "ins",
+                    "eun"
+                ]
+            },
+            "resourcetype": {
+                "type": "array",
+                "defaultValue": [
+                    "np"
+                ]
+            }
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.ContainerService/managedClusters/agentPools"
+                    },
+                    {
+                        "field": "kind",
+                        "equals": "User"
+                    },
+                    {
+                        "anyOf": [
+                            {
+                                "count": {
+                                    "value": [
+                                        "az"
+                                    ],
+                                    "name": "pattern",
+                                    "where": {
+                                        "value": "[take(field('name'), 2)]",
+                                        "like": "[current('pattern')]"
+                                    }
+                                },
+                                "notEquals": 1
+                            },
+                            {
+                                "count": {
+                                    "value": "[parameters('environment')]",
+                                    "name": "pattern",
+                                    "where": {
+                                        "value": "[substring(field('name'), 2, 3)]",
+                                        "like": "[current('pattern')]"
+                                    }
+                                },
+                                "notEquals": 1
+                            },
+                            {
+                                "count": {
+                                    "value": "[parameters('location')]",
+                                    "name": "pattern",
+                                    "where": {
+                                        "value": "[substring(field('name'), 5, 3)]",
+                                        "like": "[current('pattern')]"
+                                    }
+                                },
+                                "notEquals": 1
+                            },
+                            {
+                                "count": {
+                                    "value": "[parameters('resourcetype')]",
+                                    "name": "pattern",
+                                    "where": {
+                                        "value": "[substring(field('name'), sub(Length(field('name')), 5), 2)]",
+                                        "like": "[current('pattern')]"
+                                    }
+                                },
+                                "notEquals": 1
+                            },
+                            {
+                                "count": {
+                                    "value": "[parameters('counter')]",
+                                    "name": "pattern",
+                                    "where": {
+                                        "value": "[substring(field('name'), sub(Length(field('name')), 3), 3)]",
+                                        "like": "[current('pattern')]"
+                                    }
+                                },
+                                "notEquals": 1
+                            }
+                        ]
+                    }
+                ]
+            },
+            "then": {
+                "effect": "[parameters('policyEffect')]"
+            }
+        }
+    },
+    "name": "NP naming convention",
+    "type": "Microsoft.Authorization/policyDefinitions"
+}
