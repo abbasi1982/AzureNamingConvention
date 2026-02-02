@@ -1,13 +1,13 @@
 {
   "properties": {
     "policyType": "Custom",
-    "displayName": "Marel - Enforce AA naming convention",
-    "description": "Azure Automation account naming convention",
+    "displayName": "Enforce AA naming convention",
+    "description": "Azure Automation account naming convention: az-{env}-{location}-{projectname}-aa-{counter}.",
     "mode": "All",
     "Category": "Naming Convention",
     "metadata": {
       "category": "Naming Convention",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     "parameters": {
       "policyEffect": {
@@ -161,3 +161,4 @@
   "name": "AA naming convention",
   "type": "Microsoft.Authorization/policyDefinitions"
 }
+
