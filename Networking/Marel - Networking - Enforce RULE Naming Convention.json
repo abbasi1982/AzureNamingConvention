@@ -1,0 +1,131 @@
+{
+    "properties": {
+        "policyType": "Custom",
+        "displayName": "Marel - Enforce RULE naming convention",
+        "description": "Load balancer rule naming convention",
+        "mode": "All",
+        "Category": "Naming Convention",
+        "metadata": {
+            "category": "Naming Convention",
+            "version": "1.0.0"
+        },
+        "parameters": {
+            "policyEffect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Policy Effect",
+                    "description": "The desired effect of the policy."
+                },
+                "allowedValues": [
+                    "audit",
+                    "Audit",
+                    "deny",
+                    "Deny",
+                    "disabled",
+                    "Disabled"
+                ],
+                "defaultValue": "Deny"
+            },
+            "environment": {
+                "type": "array",
+                "defaultValue": [
+                    "prd",
+                    "stg",
+                    "tst",
+                    "dev"
+                ]
+            },
+            "location": {
+                "type": "array",
+                "defaultValue": [
+                    "euw",
+                    "brs",
+                    "aue",
+                    "usc",
+                    "jae",
+                    "inc",
+                    "inw",
+                    "ins",
+                    "eun"
+                ]
+            },
+            "resourcetype": {
+                "type": "array",
+                "defaultValue": [
+                    "rule"
+                ]
+            }
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Network/loadBalancers/inboundNatRules"
+                    },
+                    {
+                        "anyOf": [
+                            {
+                                "count": {
+                                    "value": [
+                                        "az"
+                                    ],
+                                    "name": "pattern",
+                                    "where": {
+                                        "value": "[split(field('name'), '-')[0]]",
+                                        "like": "[current('pattern')]"
+                                    }
+                                },
+                                "notEquals": 1
+                            },
+                            {
+                                "count": {
+                                    "value": "[parameters('environment')]",
+                                    "name": "pattern",
+                                    "where": {
+                                        "value": "[split(field('name'), '-')[1]]",
+                                        "like": "[current('pattern')]"
+                                    }
+                                },
+                                "notEquals": 1
+                            },
+                            {
+                                "count": {
+                                    "value": "[parameters('location')]",
+                                    "name": "pattern",
+                                    "where": {
+                                        "value": "[split(field('name'), '-')[2]]",
+                                        "like": "[current('pattern')]"
+                                    }
+                                },
+                                "notEquals": 1
+                            },
+                            {
+                                "count": {
+                                    "value": "[parameters('resourcetype')]",
+                                    "name": "pattern",
+                                    "where": {
+                                        "value": "[split(field('name'), '-')[4]]",
+                                        "like": "[current('pattern')]"
+                                    }
+                                },
+                                "notEquals": 1
+                            },
+                            {
+                                "not": {
+                                    "value": "[split(field('name'), '-')[5]]",
+                                    "match": "^[0-9]{3}$"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "then": {
+                "effect": "[parameters('policyEffect')]"
+            }
+        }
+    },
+    "name": "RULE naming convention",
+    "type": "Microsoft.Authorization/policyDefinitions"
+}
